@@ -8,8 +8,7 @@
     },
     "scripts": {
         "lint": "eslint \"examples/*.ts\"",
-        "start": "ts-node examples/ding-dong-bot.ts",
-        "start:js": "node examples/ding-dong-bot.js",
+        "start": "ts-node index.ts",
         "start:service": "cross-env WECHATY_LOG=verbose WECHATY_PUPPET=wechaty-puppet-service npm start",
         "start:wechat:web": "cross-env WECHATY_LOG=verbose WECHATY_PUPPET=wechaty-puppet-wechat npm start",
         "start:wechat:padlocal": "cross-env WECHATY_LOG=verbose WECHATY_PUPPET=wechaty-puppet-padlocal npm start",
@@ -33,7 +32,6 @@
         "axios": "^0.21.1",
         "dotenv": "^10.0.0",
         "qrcode-terminal": "^0.12.0",
-        "ts-node": "^10.0.0",
         "wechaty": "^0.61.18",
         "wechaty-plugin-contrib": "^0.14.23"
     },
@@ -46,6 +44,9 @@
         "cross-env": "^7.0.3",
         "is-pr": "^2.0.0",
         "node-fetch": "^2.6.1",
+        "ts-node": "^10.0.0",
+        "tsconfig-paths": "^3.9.0",
+        "typescript": "^4.3.3",
         "wechaty-puppet-mock": "^0.29.8",
         "wechaty-puppet-wechat": "^0.28.1",
         "wechaty-puppet-wechat4u": "^0.18",

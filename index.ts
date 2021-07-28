@@ -1,5 +1,9 @@
 import { Message, Wechaty, Contact, ScanStatus, log } from "wechaty";
-import { get_keyword_reply } from "./keyword_replies"
+import { getKeywordReply } from "./keyword_replies"
+import { repeatMe } from "./repeat_me";
+import { readFileSync } from "fs";
+
+const doNotReply: { [index: string]: string[] } = JSON.parse(readFileSync("data/do_not_reply.json", "utf-8"))
 
 const onScan = (qrcode: string, status: ScanStatus) => {
     log.info(`Status: ${status}`);
@@ -20,9 +24,17 @@ const onLogout = (user: Contact) => {
 }
 
 const onMessage = async (msg: Message) => {
-    const keyword_reply: string = await get_keyword_reply(msg)
-    if (keyword_reply) {
-        msg.say(keyword_reply)
+    log.info(msg.toString())
+
+    if (msg.self()) return
+    if (msg.room() && doNotReply["roomNames"]!.includes(await msg.room()!.topic())) return
+    if (!msg.room() && doNotReply["userNames"]!.includes(msg.talker().name())) return
+
+    const keywordReply: string | undefined = await getKeywordReply(msg)
+    if (keywordReply) {
+        msg.say(keywordReply)
+    } else {
+        repeatMe(msg)
     }
 }
 
@@ -38,3 +50,5 @@ bot
     .start()
     .then(() => log.info(`${name} has started`))
     .catch((e) => log.error(`$${e}`))
+
+export { bot }
