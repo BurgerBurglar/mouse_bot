@@ -1,9 +1,9 @@
 import axios from "axios"
-import { promises, readFileSync } from "fs"
+import { readFileSync } from "fs"
 import _ from "lodash";
-import { Contact, Message, Wechaty } from "wechaty"
+import { Message } from "wechaty"
 import { getMessageText } from "./utils";
-import { bot } from ".";
+import { bot, doNotReply } from ".";
 
 const keywordMapper: { [index: string]: string | string[] } =
     JSON.parse(readFileSync("data/keywords.json", "utf-8"))
@@ -19,26 +19,14 @@ const getKeywordReply = async (msg: Message) => {
     if (text.match(/#(老头环|艾尔登法环|埃尔登法环|elden\s*ring)/)) {
         return getEldenRingResponse()
     }
-    if (text.includes("舔狗日记")) {
-        return await getLickingDog()
-    }
-    if (text.includes("心灵鸡汤")) {
-        return await getChichenSoup()
-    }
     if (text.includes("豪哥语录")) {
         return await getZshQuote()
-    }
-    if (text.includes("佛经选读")) {
-        return await getBuddhismQuote()
     }
     if (text.includes("艾特我")) {
         return await getMentionMeResponse(msg)
     }
-    if (await mentionSelf(msg)) {
-        return await getBotChatReply(text)
-    }
 
-    const nonsenseReply = await getNonsenseReply(text)
+    const nonsenseReply = await getNonsenseReply(msg)
 
     if (nonsenseReply) return nonsenseReply
     if (text.length == 4) {
@@ -48,7 +36,7 @@ const getKeywordReply = async (msg: Message) => {
     return
 }
 
-const mentionSelf = async (msg: Message) => {
+const _mentionSelf = async (msg: Message) => {
     const text = msg.text()
     const room = msg.room()
     if (!room || !text.includes("@")) return false
@@ -59,7 +47,7 @@ const mentionSelf = async (msg: Message) => {
     return text.includes(`@${selfAlias}`)
 }
 
-const getBotChatReply = async (input: string) => {
+const _getBotChatReply = async (input: string) => {
     input = input
         .split("田鼠").join("菲菲")
         .split(/@\S+/).join("")  // remove mentions
@@ -76,42 +64,8 @@ const getBotChatReply = async (input: string) => {
     return `${reply} #田鼠机器人`
 }
 
-const getLickingDog = async () => {
-    const data: string = await axios.get("https://api.qqder.com/tiangou/api.php")
-        .then(res => res.data.split("\"")[1] + " #舔狗日记")
-        .catch(() => "服务器错误，再试试吧。")
-    return data;
-}
-const getChichenSoup = async () => {
-    return await axios.get("https://api.qqder.com/yan/api.php")
-        .then(res => res.data.trim() + " #心灵鸡汤")
-        .catch(() => "服务器错误，再试试吧。")
-}
-
 const getZshQuote = async () => _.sample(zshQuotes)!.join("\n") + " #豪哥语录"
 
-const getContentsFromFile = async (filename: string) => {
-    const lines = await promises.readFile(filename, "utf-8")
-        .then(res => res.split("\n"))
-        .then(res => res.filter(
-            (line: string) => line.trim() && !line.includes("#")
-        ))
-    return lines.slice(1,)
-}
-const getContentsFromFolder = async (folderName: string, suffix: string = "md") => {
-    let filenames: string[] = await promises.readdir(folderName);
-    filenames = filenames
-        .filter(filename => filename.endsWith(`.${suffix}`))
-        .map(filename => `${folderName}/${filename}`)
-    const contents: string[][] = await Promise.all(filenames.map(getContentsFromFile))
-    const flatContents: string[] = ([] as string[]).concat(...contents);
-    return flatContents
-}
-
-const getBuddhismQuote = async () => {
-    const quotes: string[] = await getContentsFromFolder("data/buddhism/")
-    return _.sample(quotes) + " #佛经选读"
-}
 
 const getTickleReply = () => {
     return "拍我干嘛？ #拍拍机器人"
@@ -138,10 +92,18 @@ const getIdiomSolitare = async (input: string) => {
     }
 }
 
-const getNonsenseReply = async (text: string) => {
+const getNonsenseReply = async (msg: Message) => {
+    const text: string = msg.text()
+    let blockedKeywords: string[] = []
+    if (msg.room()) {
+        const roomTopic: string | null = await msg.room()!.topic()
+        if (doNotReply["nonsenses"]![roomTopic] !== undefined) {
+            blockedKeywords = doNotReply["nonsenses"][roomTopic]
+        }
+    }
     let results: any = null
     for (let keyword in keywordMapper) {
-        if (text.includes(keyword)) {
+        if (!blockedKeywords.includes(keyword) && text.includes(keyword)) {
             results = keywordMapper[keyword]
             break
         }

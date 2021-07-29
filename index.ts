@@ -3,7 +3,7 @@ import { getKeywordReply } from "./keyword_replies"
 import { repeatMe } from "./repeat_me";
 import { readFileSync } from "fs";
 
-const doNotReply: { [index: string]: string[] } = JSON.parse(readFileSync("data/do_not_reply.json", "utf-8"))
+const doNotReply: { [index: string]: any } = JSON.parse(readFileSync("data/do_not_reply.json", "utf-8"))
 
 const onScan = (qrcode: string, status: ScanStatus) => {
     log.info(`Status: ${status}`);
@@ -51,4 +51,4 @@ bot
     .then(() => log.info(`${name} has started`))
     .catch((e) => log.error(`$${e}`))
 
-export { bot }
+export { bot, doNotReply }
