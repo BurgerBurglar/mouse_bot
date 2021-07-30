@@ -1,7 +1,9 @@
 import { Message, Wechaty, Contact, ScanStatus, log } from "wechaty";
 import { getKeywordReply } from "./keyword_replies"
 import { repeatMe } from "./repeat_me";
+import { recallRevert } from "./recall";
 import { readFileSync } from "fs";
+import { MessageType } from "wechaty-puppet";
 
 const doNotReply: { [index: string]: any } = JSON.parse(readFileSync("data/do_not_reply.json", "utf-8"))
 
@@ -29,6 +31,10 @@ const onMessage = async (msg: Message) => {
     if (msg.self()) return
     if (msg.room() && doNotReply["roomNames"]!.includes(await msg.room()!.topic())) return
     if (!msg.room() && doNotReply["userNames"]!.includes(msg.talker().name())) return
+
+    if (msg.type() === MessageType.Recalled) {
+        recallRevert(msg)
+    }
 
     const keywordReply: string | undefined = await getKeywordReply(msg)
     if (keywordReply) {
