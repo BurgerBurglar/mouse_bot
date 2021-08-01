@@ -1,20 +1,32 @@
 import axios from "axios"
-const getBotChatReply = async (input: string) => {
-    input = input
-        .split("田鼠").join("菲菲")
-        .split(/@\S+/).join("")
-    console.log(input)
+import { Dictionary } from "lodash"
 
-    const reply: string = await axios
-        .get(encodeURI(`https://api.qingyunke.com/api.php?key=free&appid=0&msg=${input}`))
-        .then(res => res.data.content)
-        .then(res => res.split("菲菲").join("田鼠"))
-        .then(res => res.split("姐").join("弟弟"))
-        .then(res => res.split("好女人就是").join("好男人就是"))
-        .then(res => res.split(/\{face\:\d+\}/).join(""))
-    return reply
+const getDaysUntil = (releaseTime: Date) => {
+    const now = Date.now()
+    return Math.floor((+releaseTime - now) / (1000 * 60 * 60 * 24))
 }
-// .then(res => res.replaceAll("菲菲", "田鼠"))
+const getEldenRingResponse = async (text: string | undefined) => {
+    if (!text) return "我没听说这个游戏，再试试看？ #游戏计时机器人"
+    const q: string = text.substring(1)  // #EldenRing -> EldenRing
+    const result = await axios.get<Dictionary<string>>(encodeURI(`http://localhost:8000/games/${q}`))
+        .then(res => res.data)
+        .catch(() => null)
 
-getBotChatReply("@毅只田鼠 你干嘛")
-    .then(res => console.log(res))
+    if (!result) return "我没听说这个游戏，再试试看？ #游戏计时机器人"
+    let output = ""
+    for (let gameName of Object.keys(result)) {
+        const releaseDate: string | undefined = result[gameName]
+        if (releaseDate) {
+            const days: number = getDaysUntil(new Date(`${releaseDate}T00:00+08:00`))
+            output += `距离${gameName}发售还有${days}天`
+        }
+    }
+    if (!output) output = "我没听说这个游戏，再试试看？"
+    return `${output} #游戏计时机器人`
+}
+const text = "距离 #eldenring 还有多少天"
+const query: string[] | null = text.match(/#\S+/)
+if (query) {
+    getEldenRingResponse(query[0])
+        .then(res => { console.log(res) })
+}

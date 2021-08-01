@@ -1,6 +1,6 @@
 import axios from "axios"
 import { readFileSync } from "fs"
-import _ from "lodash";
+import _, { Dictionary } from "lodash";
 import { Message } from "wechaty"
 import { getMessageText } from "./utils";
 import { bot, doNotReply } from ".";
@@ -16,8 +16,9 @@ const getKeywordReply = async (msg: Message) => {
     if (text.includes("\" 拍了拍我")) {
         return getTickleReply()
     }
-    if (text.match(/#(老头环|艾尔登法环|埃尔登法环|elden\s*ring)/)) {
-        return getEldenRingResponse()
+    const query: string[] | null = text.match(/#\S+/)
+    if (query) {
+        return getEldenRingResponse(query[0])
     }
     if (text.includes("豪哥语录")) {
         return await getZshQuote()
@@ -76,9 +77,24 @@ const getDaysUntil = (releaseTime: Date) => {
     return Math.floor((+releaseTime - now) / (1000 * 60 * 60 * 24))
 }
 
-const getEldenRingResponse = () => {
-    const days: number = getDaysUntil(new Date("2022-01-21T00:00+08:00"))
-    return `距离艾尔登法环发售还有${days}天 #田鼠机器人`
+const getEldenRingResponse = async (text: string | undefined) => {
+    if (!text) return "我没听说这个游戏，再试试看？ #游戏计时机器人"
+    const q: string = text.substring(1)  // #EldenRing -> EldenRing
+    const result = await axios.get<Dictionary<string>>(encodeURI(`http://localhost:8000/games/${q}`))
+        .then(res => res.data)
+        .catch(() => null)
+
+    if (!result) return "我没听说这个游戏，再试试看？ #游戏计时机器人"
+    let output: string[] = []
+    for (let gameName of Object.keys(result)) {
+        const releaseDate: string | undefined = result[gameName]
+        if (releaseDate) {
+            const days: number = getDaysUntil(new Date(`${releaseDate}T00:00+08:00`))
+            output.push(`距离「${gameName}」发售还有${days}天`)
+        }
+    }
+    if (!output.length) output = ["我没听说这个游戏，再试试看？"]
+    return `${output.join("\n")} #游戏计时机器人`
 }
 
 const getIdiomSolitare = async (input: string) => {
