@@ -9,7 +9,6 @@ const getMessageText = (msg: Message): string | null => {
     let text: string | undefined | null = msg
         .text()
         .trim()
-        .toLowerCase()
         .split("<br/>- - - - - - - - - - - - - - -<br/>")
         .slice(-1)[0]  // remove quotes
     if (!text) text = null

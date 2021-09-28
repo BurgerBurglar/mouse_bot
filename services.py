@@ -4,7 +4,7 @@ import sqlite3
 from fuzzywuzzy.fuzz import partial_ratio
 import pandas as pd
 from datetime import datetime
-
+from football import get_football_info
 
 app = FastAPI()
 
@@ -74,3 +74,8 @@ def get_idiom_solitaire(input: str) -> str:
 @app.get("/idioms/{idiom}")
 async def idioms_solitaire(idiom):
     return {"idiom": idiom, "next": get_idiom_solitaire(idiom)}
+
+
+@app.get("/leagues/")
+async def get_league_info(league: str, include_odds: bool = False):
+    return get_football_info(league, include_odds)

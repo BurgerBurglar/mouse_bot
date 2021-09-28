@@ -1,6 +1,6 @@
 import axios from "axios"
-import { readFileSync } from "fs"
-import _, { Dictionary } from "lodash";
+import { readFileSync, promises } from "fs"
+import _, { Dictionary, List } from "lodash";
 import { Message } from "wechaty"
 import { getMessageText } from "./utils";
 import { bot, doNotReply } from ".";
@@ -11,13 +11,15 @@ const keywordMapper: { [index: string]: string | string[] } =
 const zshQuotes: string[][] = JSON.parse(readFileSync("data/zsh.json", "utf-8"))
 
 const getKeywordReply = async (msg: Message) => {
-    const text: string | null = getMessageText(msg)
+    let text: string | null = getMessageText(msg)
     if (!text) return
+    else text = text.toLowerCase()
     if (text.includes("\" 拍了拍我")) {
         return getTickleReply()
     }
     const query: string[] | null = text.match(/#\S+/)
-    if (query) {
+    const roomTopic = await msg.room()?.topic()
+    if (query && roomTopic && ["索尼弟子说真相5", "test"].includes(roomTopic)) {
         return getEldenRingResponse(query[0])
     }
     if (text.includes("豪哥语录")) {
@@ -25,6 +27,17 @@ const getKeywordReply = async (msg: Message) => {
     }
     if (text.includes("艾特我")) {
         return await getMentionMeResponse(msg)
+    }
+    if (text.includes("佛经选读")) {
+        return await getBuddhismQuote()
+    }
+    if (text.includes("足球预告")) {
+        const result: string | null = await getFootballFixtures(msg, false)
+        if (result) return `${result}\n#足球机器人`
+    }
+    if (text.includes("足球赔率")) {
+        const result: string | null = await getFootballFixtures(msg, true)
+        if (result) return `${result}\n#足球机器人`
     }
 
     const nonsenseReply = await getNonsenseReply(msg)
@@ -96,6 +109,28 @@ const getEldenRingResponse = async (text: string | undefined) => {
     if (!output.length) output = ["我没听说这个游戏，再试试看？"]
     return `${output.join("\n")} #游戏计时机器人`
 }
+const getContentsFromFile = async (filename: string) => {
+    const lines = await promises.readFile(filename, "utf-8")
+        .then(res => res.split("\n"))
+        .then(res => res.filter(
+            (line: string) => line.trim() && !line.includes("#")
+        ))
+    return lines.slice(1,)
+}
+const getContentsFromFolder = async (folderName: string, suffix: string = "md") => {
+    let filenames: string[] = await promises.readdir(folderName);
+    filenames = filenames
+        .filter(filename => filename.endsWith(`.${suffix}`))
+        .map(filename => `${folderName}/${filename}`)
+    const contents: string[][] = await Promise.all(filenames.map(getContentsFromFile))
+    const flatContents: string[] = ([] as string[]).concat(...contents);
+    return flatContents
+}
+
+const getBuddhismQuote = async () => {
+    const quotes: string[] = await getContentsFromFolder("data/buddhism/")
+    return _.sample(quotes) + " #佛经选读"
+}
 
 const getIdiomSolitare = async (input: string) => {
     const output = await axios.get(encodeURI(`http://localhost:8000/idioms/${input}`))
@@ -108,8 +143,28 @@ const getIdiomSolitare = async (input: string) => {
     }
 }
 
+const getFootballFixtures = async (msg: Message, includeOdds: boolean = false) => {
+    let text: string | null = getMessageText(msg)
+    if (!text) return
+    text = text.toLowerCase()
+    const words = text.split(" ")
+    let league: string | null | undefined = ""
+    if (words.length > 1) {
+        league = words[1]
+    }
+    const output = await axios.get(
+        "http://localhost:8000/leagues/",
+        { params: { league: league, include_odds: includeOdds } }
+    )
+        .then(res => res.data)
+        .catch(() => null)
+    return output
+}
+
 const getNonsenseReply = async (msg: Message) => {
-    const text: string = msg.text()
+    let text: string | null = getMessageText(msg)
+    if (!text) return
+    else text = text.toLowerCase()
     let blockedKeywords: string[] = []
     if (msg.room()) {
         const roomTopic: string | null = await msg.room()!.topic()
@@ -125,7 +180,12 @@ const getNonsenseReply = async (msg: Message) => {
         }
     }
     if (typeof results == "string" && results.startsWith("%") && results.endsWith("%")) {
-        results = keywordMapper[results.slice(1, -1)]
+        const newKeyword = results.slice(1, -1)
+        if (!blockedKeywords.includes(newKeyword)) {
+            results = keywordMapper[newKeyword]
+        } else {
+            results = null
+        }
     }
     if (results) {
         return `${_.sample(results)} #田鼠机器人`

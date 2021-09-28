@@ -1,9 +1,11 @@
-import { Message, Wechaty, Contact, ScanStatus, log } from "wechaty";
+import { Message, Wechaty, Contact, ScanStatus, log, UrlLink } from "wechaty"
 import { getKeywordReply } from "./keyword_replies"
-import { repeatMe } from "./repeat_me";
-import { recallRevert } from "./recall";
-import { readFileSync } from "fs";
-import { MessageType } from "wechaty-puppet";
+import { sendTrumpVideo } from "./trump"
+import { repeatMe } from "./repeat_me"
+import { readFileSync } from "fs"
+import { MessageType } from "wechaty-puppet"
+import { getMessageText } from "./utils"
+import { sendVideo } from "./videoDownloader"
 
 const doNotReply: { [index: string]: any } = JSON.parse(readFileSync("data/do_not_reply.json", "utf-8"))
 
@@ -28,13 +30,17 @@ const onLogout = (user: Contact) => {
 const onMessage = async (msg: Message) => {
     log.info(msg.toString())
 
+    if (msg.type() == MessageType.Text && getMessageText(msg)?.includes(".mp4")) {
+        await sendTrumpVideo(msg)
+        return
+    }
+    if (msg.type() == MessageType.Attachment) {
+        await sendVideo(msg)
+        return
+    }
     if (msg.self()) return
     if (msg.room() && doNotReply["roomNames"]!.includes(await msg.room()!.topic())) return
     if (!msg.room() && doNotReply["userNames"]!.includes(msg.talker().name())) return
-
-    if (msg.type() === MessageType.Recalled) {
-        recallRevert(msg)
-    }
 
     const keywordReply: string | undefined = await getKeywordReply(msg)
     if (keywordReply) {
