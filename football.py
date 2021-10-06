@@ -1,14 +1,16 @@
 from datetime import datetime
 from dateutil.parser import parse
 from pytz import timezone
+import cloudscraper
 import requests
 from bs4 import BeautifulSoup
+from fractions import Fraction
 
 url_format = "https://www.oddschecker.com/football/{league}"
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36",
-    "cookie": "odds_default_stake=10; mobile_redirect=true; mobile_welcome_centre=false; basket="
-    "; cookiePolicy=false; myoc_device=MDdjYjUzYmYtNjMyOS00YmZhLWExYmQtZTgwZjNiM2Y5YzIw; _gcl_au=1.1.1075723852.1631067469; _qubitTracker=fmbdawme5y8-0kpotmqqk-u3gebio; qb_generic=:XvDMnNX:oddschecker.com; localCacheBusterSSL=1.0.31; _gid=GA1.2.2092665978.1631067469; hideCountryBanner=true; ocGdpr_v1.0.0=true; odds_type=decimal; myoc=80c77cbaed58ef6470a4e411ac2fe7c6c4eb110c43a79014; logged_in=true; number_access=17; session_number_access=2021-09-08+03:49:01~17; session-id=52026A01F84D13F5A91D0D7D88DF7860; _ga_DYH22RGD1Z=GS1.1.1631067468.1.1.1631069342.0; _ga=GA1.2.198390153.1631067469; qb_session=16:1:49:Eu4R=Q:0:XvDMnUV:0:0:0:0:oddschecker.com; qb_permanent=fmbdawme5y8-0kpotmqqk-u3gebio:29:16:4:4:0::0:1:0:BgwB/X:BhOCSe:A::::99.30.243.162:dallas:77:united states:US:32.97:-96.8:dallas-ft. worth:623:texas:44:migrated|1631069344872:Eu4R==Z=CJ6X=K6&FGXz==B=CYJ+=J+::XvDTxRo:XvDMnUV:0:0:0::0:0:oddschecker.com:0",
+browser = {
+    "browser": "firefox",
+    "platform": "windows",
+    "mobile": False,
 }
 league_mapper = {
     "英超": "english/premier-league",
@@ -39,6 +41,7 @@ league_mapper = {
     "j联赛": "world/japan/j-league",
     "mls": "world/usa/mls",
 }
+scraper = cloudscraper.create_scraper(browser=browser)
 
 
 def get_football_info(league, include_odds=False):
@@ -47,7 +50,7 @@ def get_football_info(league, include_odds=False):
         supported_leagues = " ".join([k.upper() for k in league_mapper.keys()])
         return f"目前支持的联赛：{supported_leagues}\n机器人暂时抓不到国足数据哦。"
     url = url_format.format(league=league)
-    html = requests.get(url, headers=headers).text
+    html = scraper.get(url).text
     soup = BeautifulSoup(html, "html.parser")
     rows: list[BeautifulSoup] = soup.select("table.at-hda tr")
     try:
@@ -88,7 +91,10 @@ def get_football_info(league, include_odds=False):
                     )
                 else:
                     odds: list[BeautifulSoup] = fixture.select(".odds")
-                    home_odd, draw_odd, away_odd = [odd.text for odd in odds]
+                    home_odd, draw_odd, away_odd = [
+                        f"{float(Fraction(odd.text)): .2f}".rstrip("0").rstrip(".")
+                        for odd in odds
+                    ]
                     results.append(
                         f"""{formatted_time}
 {home_team} vs {away_team}
@@ -106,4 +112,4 @@ def get_football_info(league, include_odds=False):
 
 
 if __name__ == "__main__":
-    print(get_football_info("世南美预", True))
+    print(get_football_info("英超", True))

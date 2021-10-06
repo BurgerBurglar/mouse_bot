@@ -29,13 +29,17 @@
     },
     "homepage": "https://github.com/wechaty/wechaty-getting-started#readme",
     "dependencies": {
+        "@types/spotify-web-api-node": "^5.0.3",
         "axios": "^0.21.1",
         "dotenv": "^10.0.0",
         "node-html-parser": "^4.1.4",
         "python-shell": "^3.0.0",
+        "qq-music-api": "^1.0.3",
         "qrcode-terminal": "^0.12.0",
-        "wechaty": "^0.61.18",
-        "wechaty-plugin-contrib": "^0.14.23"
+        "spotify-web-api-node": "^5.0.2",
+        "wechaty": "0.62",
+        "wechaty-plugin-contrib": "^0.14.23",
+        "wechaty-puppet-padlocal": "^0.4.2"
     },
     "devDependencies": {
         "@chatie/eslint-config": "^0.12.4",

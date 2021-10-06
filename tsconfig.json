@@ -17,5 +17,6 @@
     "scripts/**/*.ts",
     "src/**/*.ts",
     "tests/**/*.spec.ts",
+    "decs.d.ts"
   ]
 }

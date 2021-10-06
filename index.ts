@@ -1,19 +1,22 @@
 import { Message, Wechaty, Contact, ScanStatus, log, UrlLink } from "wechaty"
+import { PuppetPadlocal } from "wechaty-puppet-padlocal"
 import { getKeywordReply } from "./keyword_replies"
 import { sendTrumpVideo } from "./trump"
 import { repeatMe } from "./repeat_me"
 import { readFileSync } from "fs"
 import { MessageType } from "wechaty-puppet"
-import { getMessageText } from "./utils"
 import { sendVideo } from "./videoDownloader"
+import { sendSong } from "./music"
 
 const doNotReply: { [index: string]: any } = JSON.parse(readFileSync("data/do_not_reply.json", "utf-8"))
+process.env["WECHATY_PUPPET_SERVICE_NO_TLS_INSECURE_SERVER"] = "true"
 
 const onScan = (qrcode: string, status: ScanStatus) => {
     log.info(`Status: ${status}`);
     if (status === ScanStatus.Waiting || status === ScanStatus.Timeout) {
         const qrcodeImageUrl = `https://wechaty.js.org/qrcode/${encodeURIComponent(qrcode)}`;
         log.info(qrcodeImageUrl);
+        require('qrcode-terminal').generate(qrcode, { small: true })
     } else {
         log.info(`${name} onScan: ${ScanStatus[status]}(${status})`)
     }
@@ -28,20 +31,16 @@ const onLogout = (user: Contact) => {
 }
 
 const onMessage = async (msg: Message) => {
-    log.info(msg.toString())
-
-    if (msg.type() == MessageType.Text && getMessageText(msg)?.includes(".mp4")) {
-        await sendTrumpVideo(msg)
-        return
-    }
-    if (msg.type() == MessageType.Attachment) {
-        await sendVideo(msg)
-        return
-    }
-    if (msg.self()) return
     if (msg.room() && doNotReply["roomNames"]!.includes(await msg.room()!.topic())) return
     if (!msg.room() && doNotReply["userNames"]!.includes(msg.talker().name())) return
+    if (msg.type() != MessageType.Unknown) {
+        log.info(msg.toString())
+    }
+    if (await sendSong(msg)) return
+    // if (await sendTrumpVideo(msg)) return
+    // if (await sendVideo(msg)) return
 
+    if (msg.self()) return
     const keywordReply: string | undefined = await getKeywordReply(msg)
     if (keywordReply) {
         msg.say(keywordReply)
@@ -50,8 +49,9 @@ const onMessage = async (msg: Message) => {
     }
 }
 
+const puppet = new PuppetPadlocal({ token: "puppet_padlocal_1336a0d7c06b40c1817c35a4fcc242f2" })
 const name = 'mouse_bot';
-const bot = new Wechaty({ name });
+const bot = new Wechaty({ name, puppet })
 
 bot.on('scan', onScan);
 bot.on('login', onLogin);

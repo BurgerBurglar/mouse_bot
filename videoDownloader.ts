@@ -1,6 +1,7 @@
 import axios from "axios"
 import { createWriteStream } from "fs";
 import { FileBox, Message } from "wechaty";
+import { MessageType } from "wechaty-puppet";
 import { PythonShell } from 'python-shell';
 import { parse } from 'node-html-parser'
 
@@ -40,6 +41,7 @@ const downloadVideo = async (url: string) => {
     });
 }
 const sendVideo = async (msg: Message) => {
+    if (msg.type() !== MessageType.Url) return false
     const messageText = msg.text().replace(/&lt;/gi, "<").replace(/&gt;/gi, ">")
     const originalUrls = messageText.match(/(https?:\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?)/)
     if (!originalUrls || originalUrls?.length == 0) return
@@ -58,7 +60,7 @@ const sendVideo = async (msg: Message) => {
     const next = () => {
         try {
             msg.say(FileBox.fromFile(filePath))
-            msg.say("正在上传，请稍后。#视频下载机器人")
+            msg.say("正在上传，请稍候。#视频下载机器人")
         } catch (e) {
             console.log("upload failed")
         }
@@ -72,5 +74,6 @@ const sendVideo = async (msg: Message) => {
         PythonShell.run('test.py', execOptions, next)
     }
     await compressVideo()
+    return true
 }
 export { sendVideo }

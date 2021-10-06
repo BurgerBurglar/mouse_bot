@@ -14,12 +14,15 @@ const generateWithWord = async (word: string, output: string, next: any) => {
     PythonShell.run('generate.py', execOptions, next)
 }
 const sendTrumpVideo = async (msg: Message) => {
-    if (msg.type() != MessageType.Text || !msg.text().includes(".mp4")) return
-    const text: string | undefined = getMessageText(msg)!.split(".mp4")[0]
-    if (!text) return
-    const next = () => msg.say(FileBox.fromFile(videoPath))
-
-    await generateWithWord(text, "../" + videoPath, next)
+    if (msg.type() == MessageType.Text && getMessageText(msg)?.includes(".mp4")) {
+        if (msg.type() != MessageType.Text || !msg.text().includes(".mp4")) return
+        const text: string | undefined = getMessageText(msg)!.split(".mp4")[0]
+        if (!text) return
+        const next = () => msg.say(FileBox.fromFile(videoPath))
+        await generateWithWord(text, "../" + videoPath, next)
+        return true
+    }
+    return false
 }
 
 export { sendTrumpVideo }
