@@ -7,6 +7,8 @@ import { readFileSync } from "fs"
 import { MessageType } from "wechaty-puppet"
 import { sendVideo } from "./videoDownloader"
 import { sendSong } from "./music"
+import { sendPoem } from "./poem"
+import { kickDongdong } from "./kickDongdong"
 
 const doNotReply: { [index: string]: any } = JSON.parse(readFileSync("data/do_not_reply.json", "utf-8"))
 process.env["WECHATY_PUPPET_SERVICE_NO_TLS_INSECURE_SERVER"] = "true"
@@ -39,7 +41,8 @@ const onMessage = async (msg: Message) => {
     if (await sendSong(msg)) return
     // if (await sendTrumpVideo(msg)) return
     // if (await sendVideo(msg)) return
-
+    if (await sendPoem(msg)) return
+    if (await kickDongdong(msg)) return
     if (msg.self()) return
     const keywordReply: string | undefined = await getKeywordReply(msg)
     if (keywordReply) {

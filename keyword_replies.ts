@@ -17,10 +17,9 @@ const getKeywordReply = async (msg: Message) => {
     if (text.includes("\" 拍了拍我")) {
         return getTickleReply()
     }
-    const query: string[] | null = text.match(/#\S+/)
     const roomTopic = await msg.room()?.topic()
-    if (query && roomTopic && ["索尼弟子说真相5", "test"].includes(roomTopic)) {
-        return getEldenRingResponse(query[0])
+    if (roomTopic && ["索尼弟子说真相5", "test"].includes(roomTopic)) {
+        if (await getEldenRingResponse(msg)) return
     }
     if (text.includes("豪哥语录")) {
         return await getZshQuote()
@@ -90,14 +89,18 @@ const getDaysUntil = (releaseTime: Date) => {
     return Math.floor((+releaseTime - now) / (1000 * 60 * 60 * 24))
 }
 
-const getEldenRingResponse = async (text: string | undefined) => {
-    if (!text) return "我没听说这个游戏，再试试看？ #游戏计时机器人"
-    const q: string = text.substring(1)  // #EldenRing -> EldenRing
-    const result = await axios.get<Dictionary<string>>(encodeURI(`http://localhost:8000/games/${q}`))
-        .then(res => res.data)
-        .catch(() => null)
+const getEldenRingResponse = async (msg: Message) => {
+    let text = getMessageText(msg)
+    if (text === null || !text.includes("倒计时")) return false
+    const q: string = text.replace("倒计时", "").trim()
+    if (!q) {
+        msg.say("我没听说这个游戏，再试试看？ #游戏计时机器人")
+    }
+    const result = (await axios.get<Dictionary<string>>(encodeURI(`http://localhost:8000/games/${q}`))).data
 
-    if (!result) return "我没听说这个游戏，再试试看？ #游戏计时机器人"
+    if (!result) {
+        msg.say("我没听说这个游戏，再试试看？ #游戏计时机器人")
+    }
     let output: string[] = []
     for (let gameName of Object.keys(result)) {
         const releaseDate: string | undefined = result[gameName]
@@ -107,7 +110,8 @@ const getEldenRingResponse = async (text: string | undefined) => {
         }
     }
     if (!output.length) output = ["我没听说这个游戏，再试试看？"]
-    return `${output.join("\n")} #游戏计时机器人`
+    msg.say(`${output.join("\n")} #游戏计时机器人`)
+    return true
 }
 const getContentsFromFile = async (filename: string) => {
     const lines = await promises.readFile(filename, "utf-8")

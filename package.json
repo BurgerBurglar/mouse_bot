@@ -37,6 +37,8 @@
         "qq-music-api": "^1.0.3",
         "qrcode-terminal": "^0.12.0",
         "spotify-web-api-node": "^5.0.2",
+        "ts-node": "^10.0.0",
+        "typescript": "^4.3.3",
         "wechaty": "0.62",
         "wechaty-plugin-contrib": "^0.14.23",
         "wechaty-puppet-padlocal": "^0.4.2"
@@ -50,9 +52,7 @@
         "cross-env": "^7.0.3",
         "is-pr": "^2.0.0",
         "node-fetch": "^2.6.1",
-        "ts-node": "^10.0.0",
         "tsconfig-paths": "^3.9.0",
-        "typescript": "^4.3.3",
         "wechaty-puppet-mock": "^0.29.8",
         "wechaty-puppet-wechat": "^0.28.1",
         "wechaty-puppet-wechat4u": "^0.18",
