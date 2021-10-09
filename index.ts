@@ -51,8 +51,8 @@ const onMessage = async (msg: Message) => {
         repeatMe(msg)
     }
 }
-
-const puppet = new PuppetPadlocal({ token: "puppet_padlocal_1336a0d7c06b40c1817c35a4fcc242f2" })
+const token = process.env.PADLOCAL_TOKEN
+const puppet = new PuppetPadlocal({ token })
 const name = 'mouse_bot';
 const bot = new Wechaty({ name, puppet })
 
