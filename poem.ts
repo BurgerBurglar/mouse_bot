@@ -8,6 +8,7 @@ const headers = {
 }
 
 const getPoem = async (heads: string) => {
+    heads = heads.replace(/ /g, "")
     if (heads.length > 4 || heads.length == 0)
         return "机器人只会 1-4 个字的藏头诗哦"
     for (let c of heads) {

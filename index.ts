@@ -36,7 +36,11 @@ const onMessage = async (msg: Message) => {
     if (msg.room() && doNotReply["roomNames"]!.includes(await msg.room()!.topic())) return
     if (!msg.room() && doNotReply["userNames"]!.includes(msg.talker().name())) return
     if (msg.type() != MessageType.Unknown) {
-        log.info(msg.toString())
+        try {
+            log.info(msg.toString())
+        } catch (e) {
+            console.log(e)
+        }
     }
     if (await sendSong(msg)) return
     // if (await sendTrumpVideo(msg)) return
@@ -51,7 +55,7 @@ const onMessage = async (msg: Message) => {
         repeatMe(msg)
     }
 }
-const token = process.env.PADLOCAL_TOKEN
+const token = process.env["PADLOCAL_TOKEN"]
 const puppet = new PuppetPadlocal({ token })
 const name = 'mouse_bot';
 const bot = new Wechaty({ name, puppet })
