@@ -35,13 +35,10 @@ const onLogout = (user: Contact) => {
 const onMessage = async (msg: Message) => {
     if (msg.room() && doNotReply["roomNames"]!.includes(await msg.room()!.topic())) return
     if (!msg.room() && doNotReply["userNames"]!.includes(msg.talker().name())) return
-    if (msg.type() != MessageType.Unknown) {
-        try {
-            log.info(msg.toString())
-        } catch (e) {
-            console.log(e)
-        }
+    if (msg.type() != MessageType.Unknown && msg.talker() !== null) {
+        log.info(msg.toString())
     }
+
     if (await sendSong(msg)) return
     // if (await sendTrumpVideo(msg)) return
     // if (await sendVideo(msg)) return
