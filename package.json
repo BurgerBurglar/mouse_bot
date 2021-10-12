@@ -1,33 +1,22 @@
 {
-    "name": "wechaty-getting-started",
-    "version": "0.11.4",
+    "name": "mouse_bot",
+    "version": "0.0.1",
     "description": "Wechaty conversational SDK getting start template & examples",
     "main": "examples/ding-dong-bot.js",
     "engines": {
         "node": ">= 12"
     },
     "scripts": {
-        "lint": "eslint \"examples/*.ts\"",
         "start": "ts-node index.ts",
-        "start:service": "cross-env WECHATY_LOG=verbose WECHATY_PUPPET=wechaty-puppet-service npm start",
-        "start:wechat:web": "cross-env WECHATY_LOG=verbose WECHATY_PUPPET=wechaty-puppet-wechat npm start",
-        "start:wechat:padlocal": "cross-env WECHATY_LOG=verbose WECHATY_PUPPET=wechaty-puppet-padlocal npm start",
-        "start:whatsapp:web": "cross-env WECHATY_LOG=verbose  WECHATY_PUPPET=wechaty-puppet-whatsapp npm start",
-        "test": "npm run lint && npm run test:version && npm run test:smoke",
-        "test:smoke": "ts-node tests/smoke-testing.ts",
-        "test:version": "check-node-version --node \">= 12\""
+        "start:service": "uvicorn services:app"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/wechaty/wechaty-getting-started.git"
+        "url": "git+https://github.com/BurgerBurglar/mouse_bot.git"
     },
     "keywords": [],
-    "author": "Huan LI <zixia@zixia.net>",
+    "author": "Shuo Tian <tianshuo1996@outlook.com>",
     "license": "Apache-2.0",
-    "bugs": {
-        "url": "https://github.com/wechaty/wechaty-getting-started/issues"
-    },
-    "homepage": "https://github.com/wechaty/wechaty-getting-started#readme",
     "dependencies": {
         "@types/spotify-web-api-node": "^5.0.3",
         "axios": "^0.21.1",
@@ -55,12 +44,6 @@
         "tsconfig-paths": "^3.9.0",
         "wechaty-puppet-mock": "^0.29.8",
         "wechaty-puppet-wechat": "^0.28.1",
-        "wechaty-puppet-wechat4u": "^0.18",
         "wechaty-puppet-whatsapp": "0.2.3"
-    },
-    "git": {
-        "scripts": {
-            "pre-push": "npx git-scripts-pre-push"
-        }
     }
 }
