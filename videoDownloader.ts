@@ -71,7 +71,7 @@ const sendVideo = async (msg: Message) => {
             args: ["data", "download.mp4"],
             pythonPath: './venv/Scripts/python.exe'
         }
-        PythonShell.run('test.py', execOptions, next)
+        PythonShell.run('compress_video.py', execOptions, next)
     }
     await compressVideo()
     return true
