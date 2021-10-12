@@ -1,5 +1,5 @@
 import { Message, Wechaty } from "wechaty"
-import { getMessageText } from "./utils"
+import { getMessageText, getMessageTextWithoutMentions } from "./utils"
 
 const votesNeeded = 3
 let voteStarted = false
@@ -26,7 +26,7 @@ const canKickDongdong = async (msg: Message) => {
 const startVote = async (msg: Message) => {
     if (!canKickDongdong(msg)) return false
     if (msg.type() !== Message.Type.Text) return false
-    const text = getMessageText(msg)
+    const text = getMessageTextWithoutMentions(msg)
     if (text === null) return false
     if (isKickable(text) && msg.talker().name() == dongdongName) {
         msg.say('机器人检测到栋栋的发言存在骚扰行为，是否要把栋栋踢出此群？回复"踢了吧"可参与投票。#踢栋机器人')

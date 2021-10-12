@@ -1,4 +1,4 @@
-from china_idiom import is_idiom, next_idioms_solitaire
+from idioms.core import is_idiom, next_idioms_solitaire
 from fastapi import FastAPI
 import sqlite3
 from fuzzywuzzy.fuzz import partial_ratio

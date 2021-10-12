@@ -15,4 +15,10 @@ const getMessageText = (msg: Message): string | null => {
     return text
 }
 
-export { getMessageText }
+const getMessageTextWithoutMentions = (msg: Message) => {
+    const text = getMessageText(msg)
+    if (!text) return text
+    return text.replace(/@\p{Letter}+\s/gu, "")
+}
+
+export { getMessageText, getMessageTextWithoutMentions }
