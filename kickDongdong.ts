@@ -25,6 +25,7 @@ const canKickDongdong = async (msg: Message) => {
 }
 const startVote = async (msg: Message) => {
     if (!canKickDongdong(msg)) return false
+    if (msg.type() !== Message.Type.Text) return false
     const text = getMessageText(msg)
     if (text === null) return false
     if (isKickable(text) && msg.talker().name() == dongdongName) {

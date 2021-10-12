@@ -4,7 +4,6 @@ import { getKeywordReply } from "./keyword_replies"
 import { sendTrumpVideo } from "./trump"
 import { repeatMe } from "./repeat_me"
 import { readFileSync } from "fs"
-import { MessageType } from "wechaty-puppet"
 import { sendVideo } from "./videoDownloader"
 import { sendSong } from "./music"
 import { sendPoem } from "./poem"
@@ -35,7 +34,7 @@ const onLogout = (user: Contact) => {
 const onMessage = async (msg: Message) => {
     if (msg.room() && doNotReply["roomNames"]!.includes(await msg.room()!.topic())) return
     if (!msg.room() && doNotReply["userNames"]!.includes(msg.talker().name())) return
-    if (msg.type() != MessageType.Unknown && msg.talker() !== null) {
+    if (msg.type() != Message.Type.Unknown && msg.talker() !== null) {
         log.info(msg.toString())
     }
 
