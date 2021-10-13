@@ -4,6 +4,7 @@ import { FileBox, Message } from "wechaty";
 import { MessageType } from "wechaty-puppet";
 import { PythonShell } from 'python-shell';
 import { parse } from 'node-html-parser'
+import { say } from "./utils";
 
 const filePath = "./data/download.mp4"
 const getYouTubeDownloadableUrl = async (youtubeUrl: string) => {
@@ -59,8 +60,8 @@ const sendVideo = async (msg: Message) => {
     await downloadVideo(downloadableUrl)
     const next = () => {
         try {
-            msg.say(FileBox.fromFile(filePath))
-            msg.say("正在上传，请稍候。#视频下载机器人")
+            say(msg, FileBox.fromFile(filePath))
+            say(msg, "正在上传，请稍候。#视频下载机器人")
         } catch (e) {
             console.log("upload failed")
         }

@@ -1,5 +1,5 @@
 import { Message, UrlLink } from 'wechaty'
-import { getMessageText } from './utils'
+import { say, getMessageText } from './utils'
 const qqMusic = require('qq-music-api')
 const SpotifyWebApi = require('spotify-web-api-node')
 
@@ -46,18 +46,18 @@ const sendSong = async (msg: Message) => {
             if (text?.includes("点歌")) {
                 const key: string = text.replace("点歌", "")
                 const link: string | UrlLink = await getQQMusicUrlLink(key)
-                msg.say(link)
+                say(msg, link)
             } else {
                 const key: string = text.toLowerCase().replace("spotify", "")
                 const link: string | UrlLink = await getSpotifyUrlLink(key)
-                msg.say(link)
+                say(msg, link)
             }
             return true
         }
         return false
     } catch (e) {
         console.error(e)
-        msg.say("机器人找不到这首歌哦 #点歌机器人")
+        say(msg, "机器人找不到这首歌哦 #点歌机器人")
         return true
     }
 }

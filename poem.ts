@@ -1,7 +1,7 @@
 import axios from "axios"
 import { URLSearchParams } from "url"
 import { Message } from "wechaty"
-import { getMessageText } from "./utils"
+import { say, getMessageText } from "./utils"
 
 const headers = {
     'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
@@ -44,7 +44,7 @@ const sendPoem = async (msg: Message) => {
     if (!text.includes("藏头诗")) return false
     const heads: string = text.replace("藏头诗", "").trim()
     const poem: string = await getPoem(heads)
-    msg.say(`${poem}\n#古诗机器人`)
+    say(msg, `${poem}\n#古诗机器人`)
     return true
 }
 export { sendPoem }

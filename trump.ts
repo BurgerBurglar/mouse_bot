@@ -2,7 +2,7 @@ import { FileBox } from 'file-box';
 import { Message } from 'wechaty';
 import { PythonShell } from 'python-shell';
 import { MessageType } from 'wechaty-puppet';
-import { getMessageText } from './utils';
+import { say, getMessageText } from './utils';
 
 const videoPath: string = "../mouse_bot/data/trump.mp4"
 const generateWithWord = async (word: string, output: string, next: any) => {
@@ -18,7 +18,7 @@ const sendTrumpVideo = async (msg: Message) => {
         if (msg.type() != MessageType.Text || !msg.text().includes(".mp4")) return
         const text: string | undefined = getMessageText(msg)!.split(".mp4")[0]
         if (!text) return
-        const next = () => msg.say(FileBox.fromFile(videoPath))
+        const next = () => say(msg, FileBox.fromFile(videoPath))
         await generateWithWord(text, "../" + videoPath, next)
         return true
     }

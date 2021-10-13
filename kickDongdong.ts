@@ -1,5 +1,5 @@
 import { Message, Wechaty } from "wechaty"
-import { getMessageText, getMessageTextWithoutMentionsTags } from "./utils"
+import { say, getMessageText, getMessageTextWithoutMentionsTags } from "./utils"
 
 const votesNeeded = 3
 let voteStarted = false
@@ -29,7 +29,7 @@ const startVote = async (msg: Message) => {
     const text = getMessageTextWithoutMentionsTags(msg)
     if (text === null) return false
     if (isKickable(text) && msg.talker().name() == dongdongName) {
-        msg.say('机器人检测到栋栋的发言存在骚扰行为，是否要把栋栋踢出此群？回复"踢了吧"可参与投票。#踢栋机器人')
+        say(msg, '机器人检测到栋栋的发言存在骚扰行为，是否要把栋栋踢出此群？回复"踢了吧"可参与投票。#踢栋机器人')
         if (!voteStarted)
             voteStarted = true
         return true
@@ -40,14 +40,14 @@ const kickDongdong = async (msg: Message) => {
     if (!await canKickDongdong(msg)) return
     const dongdong = await msg.room()!.member(dongdongName)
     if (!dongdong) return
-    msg.say("李祥栋你好，你的发言存在骚扰行为，根据民主投票，我代表党和人民踢你出群。#踢栋机器人")
+    say(msg, "李祥栋你好，你的发言存在骚扰行为，根据民主投票，我代表党和人民踢你出群。#踢栋机器人")
     await Wechaty.sleep(3 * 1000)
     const room = msg.room()
     try {
         await room!.remove(dongdong)
         console.log("把栋栋踢了")
     } catch (e) {
-        msg.say("怎么没踢成功，谁他妈把我房管给下了？#踢栋机器人")
+        say(msg, "怎么没踢成功，谁他妈把我房管给下了？#踢栋机器人")
     }
 }
 const countVotes = () => {
@@ -73,7 +73,7 @@ const readVotes = async (msg: Message) => {
         return true
     }
     if (recentMessages.length > 10) {
-        msg.say("投票结束，不踢掉栋栋。#踢栋机器人")
+        say(msg, "投票结束，不踢掉栋栋。#踢栋机器人")
         voteStarted = false
         recentMessages = []
         return true

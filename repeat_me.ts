@@ -1,5 +1,5 @@
 import { Message, Room } from "wechaty"
-import { getMessageText } from "./utils"
+import { say, getMessageText } from "./utils"
 
 const repeatGoBack = 10
 const repeatMemory = 3
@@ -27,9 +27,9 @@ const updateHistory = (updated: Array<string | null>, text: string) => {
     updated.push(text)
 }
 
-const repeat = async (msg: Message) => {
+const repeat = (msg: Message) => {
     const text = getMessageText(msg)
-    await msg.say(`${text} #复读机器人`)
+    say(msg, `${text} #复读机器人`)
 }
 
 const repeatMe = async (msg: Message) => {
@@ -53,7 +53,7 @@ const repeatMe = async (msg: Message) => {
     updateHistory(roomTextHistory, text)
     if (await isRepeated(msg)) {
         updateHistory(roomRepeated, text)
-        await repeat(msg)
+        repeat(msg)
 
     }
 }

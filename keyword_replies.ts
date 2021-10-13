@@ -2,7 +2,7 @@ import axios from "axios"
 import { readFileSync, promises } from "fs"
 import _, { Dictionary, List } from "lodash";
 import { Message } from "wechaty"
-import { getMessageText, getMessageTextWithoutMentionsTags, removeKeyword } from "./utils";
+import { say, getMessageText, getMessageTextWithoutMentionsTags, removeKeyword } from "./utils";
 import { doNotReply } from ".";
 
 const keywordMapper: { [index: string]: string | string[] } =
@@ -31,7 +31,7 @@ const getQuote = async (msg: Message) => {
         if (text.includes(name)) {
             const query: string | null = removeKeyword(msg, name, true) // remove tags and mentions
             const quote = (await axios.get("http://localhost:8000/quotes", { params: { name, query } })).data
-            msg.say(quote)
+            say(msg, quote)
             return true
         }
     }
@@ -40,7 +40,7 @@ const getQuote = async (msg: Message) => {
 
 const getTickleReply = (msg: Message) => {
     if (msg.type() == Message.Type.Recalled && msg.text().includes(" 拍了拍我")) {
-        msg.say("拍我干嘛？ #拍拍机器人")
+        say(msg, "拍我干嘛？ #拍拍机器人")
         return true
     }
     return false
@@ -55,7 +55,7 @@ const getGameCountDown = async (msg: Message) => {
     if (!gameName) return false
     const result = (await axios.get<Dictionary<string>>(encodeURI(`http://localhost:8000/games/${gameName}`))).data
     if (!result) {
-        msg.say("我没听说这个游戏，再试试看？ #游戏计时机器人")
+        say(msg, "我没听说这个游戏，再试试看？ #游戏计时机器人")
         return true
     }
     let output: string[] = []
@@ -67,7 +67,7 @@ const getGameCountDown = async (msg: Message) => {
         }
     }
     if (!output.length) output = ["我没听说这个游戏，再试试看？"]
-    msg.say(`${output.join("\n")} #游戏计时机器人`)
+    say(msg, `${output.join("\n")} #游戏计时机器人`)
     return true
 }
 
@@ -92,7 +92,7 @@ const getBuddhismQuote = async (msg: Message) => {
     const text = getMessageText(msg)
     if (!text || !text.includes("佛经选读")) return false
     const quotes: string[] = await getContentsFromFolder("data/buddhism/")
-    msg.say(_.sample(quotes) + " #佛经选读")
+    say(msg, _.sample(quotes) + " #佛经选读")
     return true
 }
 
@@ -101,7 +101,7 @@ const getIdiomSolitare = async (msg: Message) => {
     if (!text || text.length !== 4) return false
     const output = (await axios.get(encodeURI(`http://localhost:8000/idioms/${text}`))).data.next
     if (!output) return false
-    msg.say(output + " #成语接龙机器人")
+    say(msg, output + " #成语接龙机器人")
     return true
 }
 
@@ -115,7 +115,7 @@ const getFootballFixtures = async (msg: Message) => {
     }
     league = league.toLowerCase()
     const output = (await axios.get("http://localhost:8000/leagues/", { params: { league, include_odds } })).data
-    msg.say(`${output}\n#足球机器人`)
+    say(msg, `${output}\n#足球机器人`)
     return true
 }
 
@@ -146,7 +146,7 @@ const getNonsenseReply = async (msg: Message) => {
         }
     }
     if (!results) return false
-    msg.say(`${_.sample(results)} #田鼠机器人`)
+    say(msg, `${_.sample(results)} #田鼠机器人`)
     return true
 }
 
@@ -163,7 +163,7 @@ const getMentionMeResponse = async (msg: Message) => {
     } catch (e) {
         alias = talker.name()
     }
-    msg.say(`@${alias} #艾特机器人`)
+    say(msg, `@${alias} #艾特机器人`)
     return true
 }
 

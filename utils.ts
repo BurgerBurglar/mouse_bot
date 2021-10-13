@@ -1,4 +1,4 @@
-import { Message } from "wechaty"
+import { Message, log } from "wechaty"
 
 const getMessageText = (msg: Message, lower: boolean = true): string | null => {
     if (msg.type() !== Message.Type.Text) return null
@@ -34,4 +34,21 @@ const removeKeyword = (msg: Message, keyword: string, removeMentionsAndTags: boo
     return text.replace(keyword, "").trim()
 }
 
-export { getMessageText, getMessageTextWithoutMentionsTags, removeKeyword }
+const sayAndLogMessage = (msg: Message, content: any) => {
+    msg.say(content)
+    const msgStrList = [
+        'Message',
+        `#${typeof content}`,
+        '[',
+        '🗣',
+        "我",
+        msg.room() ? '@👥' + msg.room() : '',
+        ']',
+    ]
+    if (typeof content === "string") {
+        msgStrList.push(content)
+    }
+    log.info(msgStrList.join(''))
+}
+
+export { getMessageText, getMessageTextWithoutMentionsTags, removeKeyword, sayAndLogMessage as say }
