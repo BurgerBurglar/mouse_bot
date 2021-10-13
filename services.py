@@ -1,12 +1,38 @@
-from idioms.core import is_idiom, next_idioms_solitaire
-from fastapi import FastAPI
+import json
 import sqlite3
-from fuzzywuzzy.fuzz import partial_ratio
-import pandas as pd
 from datetime import datetime
+from random import choice
+from typing import Optional
+
+import pandas as pd
+from fastapi import FastAPI
+from fuzzywuzzy.fuzz import partial_ratio
+
 from football import get_football_info
+from idioms.core import is_idiom, next_idioms_solitaire
+
+with open("data/quotes.json", encoding="utf-8") as f:
+    quotes: dict[str, list[str]] = json.load(f)
+
 
 app = FastAPI()
+
+
+@app.get("/quotes")
+def get_quote(name: str, query: Optional[str] = None) -> str:
+    if not query:
+        quote = choice(quotes.get(name))
+        if quote is None:
+            return ""
+    else:
+        his_quotes = quotes.get(name)
+        if his_quotes is None:
+            return ""
+        similarities = [partial_ratio(query, quote) for quote in his_quotes]
+        df = pd.DataFrame({"quotes": his_quotes, "similarities": similarities})
+        df = df[df["similarities"] == df["similarities"].max()]
+        quote = choice(df["quotes"].to_list())
+    return f"{quote}#{name}"
 
 
 @app.get("/games/{q}")

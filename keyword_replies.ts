@@ -8,7 +8,7 @@ import { bot, doNotReply } from ".";
 const keywordMapper: { [index: string]: string | string[] } =
     JSON.parse(readFileSync("data/keywords.json", "utf-8"))
 
-const zshQuotes: string[][] = JSON.parse(readFileSync("data/zsh.json", "utf-8"))
+const quoteNames: string[] = JSON.parse(readFileSync("data/quotes.json", "utf-8")).keys
 
 const getKeywordReply = async (msg: Message) => {
     let text: string | null = getMessageText(msg)
@@ -21,8 +21,10 @@ const getKeywordReply = async (msg: Message) => {
     if (roomTopic && ["索尼弟子说真相5", "test"].includes(roomTopic)) {
         if (await getEldenRingResponse(msg)) return
     }
-    if (text.includes("豪哥语录")) {
-        return await getZshQuote()
+    for (let name of quoteNames) {
+        if (text.includes(name)) {
+            return await getQuote(name, msg)
+        }
     }
     if (text.includes("艾特我")) {
         return await getMentionMeResponse(msg)
@@ -60,25 +62,14 @@ const _mentionSelf = async (msg: Message) => {
     return text.includes(`@${selfAlias}`)
 }
 
-const _getBotChatReply = async (input: string) => {
-    input = input
-        .split("田鼠").join("菲菲")
-        .split(/@\S+/).join("")  // remove mentions
-    if (!input.replace(/\s/g, '').length) {
-        input = "你好"
-    }
-    const reply: string = await axios
-        .get(encodeURI(`https://api.qingyunke.com/api.php?key=free&appid=0&msg=${input}`))
-        .then(res => res.data.content)
-        .then(res => res.split("菲菲").join("田鼠"))
-        .then(res => res.split("姐").join("弟弟"))
-        .then(res => res.split("好女人就是").join("好男人就是"))
-        .then(res => res.split(/\{face\:\d+\}/).join(""))
-    return `${reply} #田鼠机器人`
+
+const getQuote = async (name: string, msg: Message) => {
+    const text = getMessageText(msg)
+    if (!text) return ""
+    const query = text.replace(name, "")
+    const quote = (await (axios.get("http://localhost:8000/quotes", { params: { name, query } }))).data
+    return quote
 }
-
-const getZshQuote = async () => _.sample(zshQuotes)!.join("\n") + " #豪哥语录"
-
 
 const getTickleReply = () => {
     return "拍我干嘛？ #拍拍机器人"
