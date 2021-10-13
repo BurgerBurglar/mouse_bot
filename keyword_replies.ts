@@ -8,7 +8,7 @@ import { bot, doNotReply } from ".";
 const keywordMapper: { [index: string]: string | string[] } =
     JSON.parse(readFileSync("data/keywords.json", "utf-8"))
 
-const quoteNames: string[] = JSON.parse(readFileSync("data/quotes.json", "utf-8")).keys
+const quoteNames: string[] = Object.keys(JSON.parse(readFileSync("data/quotes.json", "utf-8")))
 
 const getKeywordReply = async (msg: Message) => {
     let text: string | null = getMessageText(msg)
