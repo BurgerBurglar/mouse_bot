@@ -9,12 +9,12 @@ const headers = {
 
 const getPoem = async (heads: string) => {
     heads = heads.replace(/ /g, "")
-    if (heads.length > 4 || heads.length == 0)
-        return "机器人只会 1-4 个字的藏头诗哦"
     for (let c of heads) {
         if (!/.*[\u4e00-\u9fa5]+.*$/.test(c))
             return "爱慕拆腻子，阿鬼，你都係讲返中文喇。"
     }
+    if (heads.length > 4 || heads.length == 0)
+        return "机器人只会 1-4 个字的藏头诗哦"
     const params = {
         yan: "7",
         poem: heads,
