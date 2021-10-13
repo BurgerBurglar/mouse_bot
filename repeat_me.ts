@@ -6,7 +6,7 @@ const repeatMemory = 3
 const textHistory: Map<string, Array<string | null>> = new Map()
 const repeated: Map<string, Array<string | null>> = new Map()
 
-const isRepeated = async (msg: Message) => {
+const isRepeated = (msg: Message) => {
     const text = getMessageText(msg)
     let room: Room | null = msg.room()
     let id: string
@@ -51,10 +51,9 @@ const repeatMe = async (msg: Message) => {
     const roomTextHistory: Array<string | null> = textHistory.get(id)!
     const roomRepeated: Array<string | null> = repeated.get(id)!
     updateHistory(roomTextHistory, text)
-    if (await isRepeated(msg)) {
+    if (isRepeated(msg)) {
         updateHistory(roomRepeated, text)
         repeat(msg)
-
     }
 }
 
