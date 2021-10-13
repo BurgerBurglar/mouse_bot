@@ -1,24 +1,37 @@
 import { Message } from "wechaty"
 
-const getMessageText = (msg: Message): string | null => {
-    if (
-        ![Message.Type.Text, Message.Type.Recalled].includes(msg.type()) ||
-        ["[Send an emoji, view it on mobile]", "[收到一条暂不支持的消息类型，请在手机上查看]"].includes(msg.text())
-    )
-        return null
+const getMessageText = (msg: Message, lower: boolean = true): string | null => {
+    if (msg.type() !== Message.Type.Text) return null
     let text: string | undefined | null = msg
         .text()
         .trim()
         .split("\n- - - - - - - - - - - - - - - -\n")
         .slice(-1)[0]  // remove quotes
-    if (!text) text = null
+    if (!text) return null
+    if (lower)
+        text = text.toLowerCase()
     return text
 }
 
-const getMessageTextWithoutMentionsTags = (msg: Message) => {
-    const text = getMessageText(msg)
+const getMessageTextWithoutMentionsTags = (msg: Message, lower: boolean = true) => {
+    const text = getMessageText(msg, lower)
     if (!text) return text
     return text.replace(/(@|#)\p{Letter}+/gu, "").trim()
 }
 
-export { getMessageText, getMessageTextWithoutMentionsTags }
+const removeKeyword = (msg: Message, keyword: string, removeMentionsAndTags: boolean = false, lower: boolean = true): string | null => {
+    let text: string | null
+    if (removeMentionsAndTags) {
+        text = getMessageTextWithoutMentionsTags(msg, lower)
+    }
+    else {
+        text = getMessageText(msg, lower)
+    }
+    if (!text) return text
+    if (!text.includes(keyword)) {
+        return null
+    }
+    return text.replace(keyword, "").trim()
+}
+
+export { getMessageText, getMessageTextWithoutMentionsTags, removeKeyword }

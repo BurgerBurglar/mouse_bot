@@ -31,29 +31,30 @@ const onLogout = (user: Contact) => {
     log.info(`${user} has logged out.`);
 }
 
+const shouldReply = async (msg: Message) => {
+    if (msg.room() && doNotReply["roomNames"]!.includes(await msg.room()!.topic())) return false
+    if (!msg.room() && doNotReply["userNames"]!.includes(msg.talker().name())) return false
+    return true
+}
+
 const onMessage = async (msg: Message) => {
-    if (msg.room() && doNotReply["roomNames"]!.includes(await msg.room()!.topic())) return
-    if (!msg.room() && doNotReply["userNames"]!.includes(msg.talker().name())) return
-    if (msg.type() != Message.Type.Unknown && msg.talker() !== null) {
+    if (msg.type() !== Message.Type.Unknown) {
         log.info(msg.toString())
     }
-
+    if (!await shouldReply(msg)) return
     if (await sendSong(msg)) return
     // if (await sendTrumpVideo(msg)) return
     // if (await sendVideo(msg)) return
     if (await sendPoem(msg)) return
     if (await kickDongdong(msg)) return
     if (msg.self()) return
-    const keywordReply: string | undefined = await getKeywordReply(msg)
-    if (keywordReply) {
-        msg.say(keywordReply)
-    } else {
-        repeatMe(msg)
-    }
+    if (await getKeywordReply(msg)) return
+    repeatMe(msg)
 }
+
+const name = 'mouse_bot';
 const token = process.env["PADLOCAL_TOKEN"]
 const puppet = new PuppetPadlocal({ token })
-const name = 'mouse_bot';
 const bot = new Wechaty({ name, puppet })
 
 bot.on('scan', onScan);
@@ -66,4 +67,4 @@ bot
     .then(() => log.info(`${name} has started`))
     .catch((e) => log.error(`$${e}`))
 
-export { bot, doNotReply }
+export { doNotReply }
