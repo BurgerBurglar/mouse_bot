@@ -8,7 +8,7 @@ const headers = {
 }
 
 const getPoem = async (heads: string) => {
-    heads = heads.replace(/ /g, "")
+    heads = heads.replace(/(\p{P}| )+/gu, "")  // removes punctuations
     for (let c of heads) {
         if (!/.*[\u4e00-\u9fa5]+.*$/.test(c))
             return "爱慕拆腻子，阿鬼，你都係讲返中文喇。"
