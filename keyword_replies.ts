@@ -2,7 +2,7 @@ import axios from "axios"
 import { readFileSync, promises } from "fs"
 import _, { Dictionary, List } from "lodash";
 import { Message } from "wechaty"
-import { getMessageText } from "./utils";
+import { getMessageText, getMessageTextWithoutMentionsTags } from "./utils";
 import { bot, doNotReply } from ".";
 
 const keywordMapper: { [index: string]: string | string[] } =
@@ -12,6 +12,7 @@ const quoteNames: string[] = Object.keys(JSON.parse(readFileSync("data/quotes.js
 
 const getKeywordReply = async (msg: Message) => {
     let text: string | null = getMessageText(msg)
+    const pureText: string | null = getMessageTextWithoutMentionsTags(msg)
     if (!text) return
     else text = text.toLowerCase()
     if (text.includes("\" 拍了拍我")) {
@@ -22,7 +23,7 @@ const getKeywordReply = async (msg: Message) => {
         if (await getEldenRingResponse(msg)) return
     }
     for (let name of quoteNames) {
-        if (text.includes(name)) {
+        if (pureText?.includes(name)) {
             return await getQuote(name, msg)
         }
     }
@@ -64,7 +65,7 @@ const _mentionSelf = async (msg: Message) => {
 
 
 const getQuote = async (name: string, msg: Message) => {
-    const text = getMessageText(msg)
+    const text = getMessageTextWithoutMentionsTags(msg)
     if (!text) return ""
     const query = text.replace(name, "")
     const quote = (await (axios.get("http://localhost:8000/quotes", { params: { name, query } }))).data
