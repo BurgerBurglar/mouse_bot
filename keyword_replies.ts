@@ -27,11 +27,20 @@ const getKeywordReply = async (msg: Message) => {
 const getQuote = async (msg: Message) => {
     const text = getMessageTextWithoutMentionsTags(msg)
     if (!text) return false
+    if (text.includes("语录查询")) {
+        const reply = `支持查询：${quoteNames.reverse().join("、")}。#语录机器人`
+        say(msg, reply)
+        return true
+    }
     for (let name of quoteNames) {
         if (text.includes(name)) {
             const query: string | null = removeKeyword(msg, name, true) // remove tags and mentions
-            const quote = (await axios.get("http://localhost:8000/quotes", { params: { name, query } })).data
-            say(msg, quote)
+            try {
+                const quote = (await axios.get("http://localhost:8000/quotes", { params: { name, query } })).data
+                say(msg, quote)
+            } catch (e) {
+                say(msg, "机器人掉线了，我也不知道他说过什么。#语录机器人")
+            }
             return true
         }
     }

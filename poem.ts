@@ -34,7 +34,7 @@ const getPoem = async (heads: string) => {
         if (Array.isArray(poem)) return poem.join("\n")
         return poem
     } catch (error) {
-        return "这首诗机器人不会做哦"
+        return "这首诗机器人不会作哦"
     }
 }
 
