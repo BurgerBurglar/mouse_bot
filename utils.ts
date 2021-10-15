@@ -1,4 +1,4 @@
-import { Message, log } from "wechaty"
+import { Message, log, Contact } from "wechaty"
 
 const getMessageText = (msg: Message, lower: boolean = true): string | null => {
     if (msg.type() !== Message.Type.Text) return null
@@ -35,7 +35,12 @@ const removeKeyword = (msg: Message, keyword: string, removeMentionsAndTags: boo
 }
 
 const sayAndLogMessage = (msg: Message, content: any) => {
-    msg.say(content)
+    if (msg.room() === null && msg.self()) {
+        const toContact = msg.to() as Contact
+        toContact.say(content)
+    } else {
+        msg.say(content)
+    }
     const msgStrList = [
         'Message',
         `#${typeof content}`,
