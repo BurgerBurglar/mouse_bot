@@ -7,7 +7,7 @@ import { readFileSync } from "fs"
 import { sendVideo } from "./videoDownloader"
 import { sendSong } from "./music"
 import { sendPoem } from "./poem"
-import { kickDongdong } from "./kickDongdong"
+import { addDongdong, kickDongdong } from "./kickDongdong"
 
 const doNotReply: { [index: string]: any } = JSON.parse(readFileSync("data/do_not_reply.json", "utf-8"))
 process.env["WECHATY_PUPPET_SERVICE_NO_TLS_INSECURE_SERVER"] = "true"
@@ -47,6 +47,7 @@ const onMessage = async (msg: Message) => {
     // if (await sendVideo(msg)) return
     if (await sendPoem(msg)) return
     if (await kickDongdong(msg)) return
+    if (await addDongdong(msg)) return
     if (msg.self()) return
     if (await getKeywordReply(msg)) return
     repeatMe(msg)
@@ -67,4 +68,4 @@ bot
     .then(() => log.info(`${name} has started`))
     .catch((e) => log.error(`$${e}`))
 
-export { doNotReply }
+export { doNotReply, bot }
