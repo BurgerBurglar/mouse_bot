@@ -132,7 +132,7 @@ const weatherForecast = async (msg: Message) => {
     try {
         for (let day of days) {
             if (text.includes(day)) {
-                const locationName = text.replace(day, "")
+                const locationName = text.replace(day, "").trim()
                 const weather = await weatherSummary(locationName, day)
                 say(msg, weather)
                 return true
