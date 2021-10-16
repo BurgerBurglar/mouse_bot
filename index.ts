@@ -8,7 +8,6 @@ import { sendVideo } from "./videoDownloader"
 import { sendSong } from "./music"
 import { sendPoem } from "./poem"
 import { kickDongdong } from "./kickDongdong"
-import { weatherForecast } from "./weather"
 
 const doNotReply: { [index: string]: any } = JSON.parse(readFileSync("data/do_not_reply.json", "utf-8"))
 process.env["WECHATY_PUPPET_SERVICE_NO_TLS_INSECURE_SERVER"] = "true"
@@ -48,7 +47,6 @@ const onMessage = async (msg: Message) => {
     // if (await sendVideo(msg)) return
     if (await sendPoem(msg)) return
     if (await kickDongdong(msg)) return
-    if (await weatherForecast(msg)) return
     if (msg.self()) return
     if (await getKeywordReply(msg)) return
     repeatMe(msg)

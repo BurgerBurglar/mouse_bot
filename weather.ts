@@ -25,7 +25,7 @@ class KeyNotFoundError extends Error {
 }
 
 
-const locationLookup = async (location: string): Promise<Location | string> => {
+const locationLookup = async (location: string): Promise<Location | Error> => {
     const url = "https://geoapi.qweather.com/v2/city/lookup"
     const params = { location, key }
     try {
@@ -36,57 +36,35 @@ const locationLookup = async (location: string): Promise<Location | string> => {
         const { name, id } = data.location[0]
         return { name, id }
     } catch (e) {
-        if (e instanceof Error) return e.message
-        return errorMessage
+        if (e instanceof Error) return e
+        return new Error(errorMessage)
     }
 }
 type weatherType = {
     fxDate: string,
-    sunrise: string,
-    sunset: string,
-    moonrise: string,
-    moonset: string,
-    moonPhase: string,
-    moonPhaseIcon: string,
     tempMax: string,
     tempMin: string,
-    iconDay: string,
     textDay: string,
-    iconNight: string,
     textNight: string,
-    wind360Day: string,
-    windDirDay: string,
-    windScaleDay: string,
-    windSpeedDay: string,
-    wind360Night: string,
-    windDirNight: string,
-    windScaleNight: string,
-    windSpeedNight: string,
-    humidity: string,
-    precip: string,
-    pressure: string,
-    vis: string,
-    cloud: string,
-    uvIndex: string,
 }
 type locationWeatherType = {
     name: string,
     weather: weatherType[],
 }
 
-const getLocationWeather = async (locationName: string): Promise<locationWeatherType | string> => {
+const getLocationWeather = async (locationName: string): Promise<locationWeatherType | Error> => {
     try {
         if (!key) throw new KeyNotFoundError()
         const url = "https://devapi.qweather.com/v7/weather/3d"
         const location = await (locationLookup(locationName))
-        if (typeof location === "string")
+        if (location instanceof Error)
             return location
         const params = { location: location.id, key }
         const weather = (await axios.get(url, { params, timeout: 10 * 1000 })).data.daily
         return { name: location.name, weather }
     } catch (e) {
-        if (e instanceof Error) return e.message
-        return errorMessage
+        if (e instanceof Error) return e
+        return new Error(errorMessage)
     }
 }
 
@@ -102,8 +80,14 @@ const dateToChineseDayName = (date: string): string => {
 const weatherSummary = async (locationName: string, day?: string): Promise<string> => {
     try {
         if (!key) throw new KeyNotFoundError()
+        if (!locationName) return `使用方法：
+达拉斯天气预报
+San Francisco 今天天气预报
+北京明天天气预报
+后天天气预报دبي
+#天气机器人`
         const locationWeather = await getLocationWeather(locationName)
-        if (typeof locationWeather == "string") return locationWeather
+        if (locationWeather instanceof Error) return locationWeather.message
 
         const weatherSummary = locationWeather.weather.map(e =>
             `${e.fxDate} ${dateToChineseDayName(e.fxDate)}

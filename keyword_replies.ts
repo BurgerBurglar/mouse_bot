@@ -4,6 +4,7 @@ import _, { Dictionary, List } from "lodash";
 import { Message } from "wechaty"
 import { say, getMessageText, getMessageTextWithoutMentionsTags, removeKeyword } from "./utils";
 import { doNotReply } from ".";
+import { weatherForecast } from "./weather";
 
 const keywordMapper: { [index: string]: string | string[] } =
     JSON.parse(readFileSync("data/keywords.json", "utf-8"))
@@ -13,6 +14,7 @@ const quoteNames: string[] = Object.keys(JSON.parse(readFileSync("data/quotes.js
 const getKeywordReply = async (msg: Message) => {
     if (msg.self()) return false
     if (getTickleReply(msg)) return true
+    if (await weatherForecast(msg)) return
     if (await getGameCountDown(msg)) return true
     if (await getQuote(msg)) return true
     if (await getMentionMeResponse(msg)) return true
