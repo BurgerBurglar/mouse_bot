@@ -64,22 +64,27 @@ const getDaysUntil = (releaseTime: Date) => {
 const getGameCountDown = async (msg: Message) => {
     const gameName = removeKeyword(msg, "倒计时")
     if (!gameName) return false
-    const result = (await axios.get<Dictionary<string>>(encodeURI(`http://localhost:8000/games/${gameName}`))).data
-    if (!result) {
-        say(msg, "我没听说这个游戏，再试试看？ #游戏计时机器人")
+    try {
+        const result = (await axios.get<Dictionary<string>>(encodeURI(`http://localhost:8000/games/${gameName}`))).data
+        if (!result) {
+            say(msg, "机器人没听说这个游戏，再试试看？ #游戏计时机器人")
+            return true
+        }
+        let output: string[] = []
+        for (let gameName of Object.keys(result)) {
+            const releaseDate: string | undefined = result[gameName]
+            if (releaseDate) {
+                const days: number = getDaysUntil(new Date(`${releaseDate}T00:00+08:00`))
+                output.push(`距离「${gameName}」发售还有${days}天`)
+            }
+        }
+        if (!output.length) output = ["我没听说这个游戏，再试试看？"]
+        say(msg, `${output.join("\n")} #游戏计时机器人`)
+    } catch (e) {
+        say(msg, `机器人掉线了，不知道${gameName}什么时候发售哦。`)
+    } finally {
         return true
     }
-    let output: string[] = []
-    for (let gameName of Object.keys(result)) {
-        const releaseDate: string | undefined = result[gameName]
-        if (releaseDate) {
-            const days: number = getDaysUntil(new Date(`${releaseDate}T00:00+08:00`))
-            output.push(`距离「${gameName}」发售还有${days}天`)
-        }
-    }
-    if (!output.length) output = ["我没听说这个游戏，再试试看？"]
-    say(msg, `${output.join("\n")} #游戏计时机器人`)
-    return true
 }
 
 const getContentsFromFile = async (filename: string) => {
@@ -110,10 +115,14 @@ const getBuddhismQuote = async (msg: Message) => {
 const getIdiomSolitare = async (msg: Message) => {
     const text = getMessageTextWithoutMentionsTags(msg)
     if (!text || text.length !== 4) return false
-    const output = (await axios.get(encodeURI(`http://localhost:8000/idioms/${text}`))).data.next
-    if (!output) return false
-    say(msg, output + " #成语接龙机器人")
-    return true
+    try {
+        const output = (await axios.get(encodeURI(`http://localhost:8000/idioms/${text}`))).data.next
+        if (!output) return false
+        say(msg, output + " #成语接龙机器人")
+        return true
+    } catch (e) {
+        return false
+    }
 }
 
 const getFootballFixtures = async (msg: Message) => {
@@ -125,9 +134,13 @@ const getFootballFixtures = async (msg: Message) => {
         include_odds = false
     }
     league = league.toLowerCase()
-    const output = (await axios.get("http://localhost:8000/leagues/", { params: { league, include_odds } })).data
-    say(msg, `${output}\n#足球机器人`)
-    return true
+    try {
+        const output = (await axios.get("http://localhost:8000/leagues/", { params: { league, include_odds } })).data
+        say(msg, `${output}\n#足球机器人`)
+        return true
+    } catch (e) {
+        return false
+    }
 }
 
 const getNonsenseReply = async (msg: Message) => {
