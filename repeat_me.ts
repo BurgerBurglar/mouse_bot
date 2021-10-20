@@ -7,7 +7,7 @@ const textHistory: Map<string, Array<string | null>> = new Map()
 const repeated: Map<string, Array<string | null>> = new Map()
 
 const isRepeated = (msg: Message) => {
-    const text = getMessageText(msg)
+    const text = getMessageText(msg, false)
     let room: Room | null = msg.room()
     let id: string
     if (room) {
@@ -28,12 +28,12 @@ const updateHistory = (updated: Array<string | null>, text: string) => {
 }
 
 const repeat = (msg: Message) => {
-    const text = getMessageText(msg)
+    const text = getMessageText(msg, false)
     say(msg, `${text} #复读机器人`)
 }
 
 const repeatMe = async (msg: Message) => {
-    const text = getMessageText(msg)
+    const text = getMessageText(msg, false)
     if (!text) return
     let room: Room | null = msg.room()
     let id: string
