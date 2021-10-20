@@ -6,6 +6,7 @@ let voteStarted = false
 let recentMessages: { "userId": string, "text": string }[] = []
 const keywords = ["信用卡", "银行", "存款", "体制", "客户", "网点", "存款", "资产", "签证", "理财", "营业", "编制", "事业编", "贷款", "公积金", "对公", "工行", "营销", "工银"]
 const dongdongName = "栋栋🤧"
+const realMadridGroupName = "皇马upup"
 
 const isKickable = (text: string) => {
     if (text.length > 15 * 7) return true
@@ -18,13 +19,13 @@ const isKickable = (text: string) => {
 }
 const canKickDongdong = async (msg: Message) => {
     const room = msg.room()
-    if (room === null || await room?.topic() !== "皇马upup") return false
+    if (room === null || await room?.topic() !== realMadridGroupName) return false
     const dongdong = await room.member(dongdongName)
     if (dongdong === null) return false
     return true
 }
 const startVote = async (msg: Message) => {
-    if (!canKickDongdong(msg)) return false
+    if (!await canKickDongdong(msg)) return false
     if (msg.type() !== Message.Type.Text) return false
     const text = getMessageTextWithoutMentionsTags(msg)
     if (text === null) return false
@@ -60,7 +61,7 @@ const countVotes = () => {
     return voted.size
 }
 const readVotes = async (msg: Message) => {
-    if (!voteStarted || !canKickDongdong(msg)) return false
+    if (!voteStarted || !await canKickDongdong(msg)) return false
     const text = getMessageText(msg)
     const userId = msg.talker().id
     if (text === null) return false
