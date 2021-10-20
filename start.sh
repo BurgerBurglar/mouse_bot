@@ -1,2 +1,2 @@
-uvicorn services:app &
-npm start
+python scripts/keywords.py
+uvicorn services:app
