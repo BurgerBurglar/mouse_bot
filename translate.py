@@ -45,13 +45,13 @@ def translate(text: str, language: str) -> dict:
         print(e.response)
         return {
             "toLanguageName": None,
-            "translation": "机器人掉线了，不会翻译哦。#翻译机器人",
+            "translation": "机器人掉线了，不会翻译哦。",
         }
     except Exception as e:
         print(str(e))
         return {
             "toLanguageName": None,
-            "translation": "机器人出了点小故障，不会翻译哦。#翻译机器人",
+            "translation": "机器人出了点小故障，不会翻译哦。",
         }
 
 
