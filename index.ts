@@ -8,6 +8,7 @@ import { sendVideo } from "./videoDownloader"
 import { sendSong } from "./music"
 import { sendPoem } from "./poem"
 import { addDongdong, kickDongdong } from "./kickDongdong"
+import { getTranslation } from "./translate";
 
 const doNotReply: { [index: string]: any } = JSON.parse(readFileSync("data/do_not_reply.json", "utf-8"))
 process.env["WECHATY_PUPPET_SERVICE_NO_TLS_INSECURE_SERVER"] = "true"
@@ -42,6 +43,8 @@ const onMessage = async (msg: Message) => {
         log.info(msg.toString())
     }
     if (!await shouldReply(msg)) return
+
+    if (await getTranslation(msg)) return
     if (await sendSong(msg)) return
     // if (await sendTrumpVideo(msg)) return
     // if (await sendVideo(msg)) return

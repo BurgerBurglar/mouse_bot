@@ -1,4 +1,38 @@
 import { Message, log, Contact } from "wechaty"
+import { parseStringPromise } from 'xml2js'
+
+type ParsedMessage = {
+    quoteFrom: string | undefined, quoteText: string | undefined, text: string,
+}
+
+const getTextFromXML = async (text: string): Promise<string> => {
+    try {
+        const parsedText = await parseStringPromise(text)
+        return parsedText["msg"]["appmsg"][0]["title"][0]
+    } catch (e) {
+        return text
+    }
+}
+
+const parseMessageText = async (msg: Message): Promise<ParsedMessage | null> => {
+    if (msg.type() !== Message.Type.Text) return null
+    const raw = msg.text()
+    const delimiter = "\n- - - - - - - - - - - - - - - -\n"
+    if (!raw.includes(delimiter)) {
+        return {
+            quoteFrom: undefined,
+            quoteText: undefined,
+            text: raw,
+        }
+    }
+    const textBreak: Array<string> = raw.trim().split(delimiter)
+    const quote = textBreak[0] as string
+    const text = textBreak[1] as string
+    const quoteFrom = quote.split("：")[0]?.substring(1) as string
+    let quoteText = quote.split("：")[1]!.slice(0, -1) as string
+    quoteText = await getTextFromXML(quoteText)
+    return { quoteFrom, quoteText, text }
+}
 
 const getMessageText = (msg: Message, lower: boolean = true): string | null => {
     if (msg.type() !== Message.Type.Text) return null
@@ -56,4 +90,4 @@ const sayAndLogMessage = (msg: Message, content: any) => {
     log.info(msgStrList.join(''))
 }
 
-export { getMessageText, getMessageTextWithoutMentionsTags, removeKeyword, sayAndLogMessage as say }
+export { parseMessageText, getMessageText, getMessageTextWithoutMentionsTags, removeKeyword, sayAndLogMessage as say }

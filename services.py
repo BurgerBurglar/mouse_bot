@@ -10,6 +10,7 @@ from fuzzywuzzy.fuzz import partial_ratio
 
 from football import get_football_info
 from idioms.core import is_idiom, next_idioms_solitaire
+from translate import translate
 
 with open("data/quotes.json", encoding="utf-8") as f:
     quotes: dict[str, list[str]] = json.load(f)
@@ -105,3 +106,8 @@ async def idioms_solitaire(idiom):
 @app.get("/leagues/")
 async def get_league_info(league: str, include_odds: bool = False):
     return get_football_info(league, include_odds)
+
+
+@app.get("/translate")
+def get_translation(text: str, language: str):
+    return translate(text, language)
