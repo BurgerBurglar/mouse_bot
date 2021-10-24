@@ -2,7 +2,7 @@ import { Contact, Message, Room, Wechaty } from "wechaty"
 import { say, getMessageText, getMessageTextWithoutMentionsTags } from "./utils"
 import { bot } from "."
 
-const votesNeeded = 1
+const votesNeeded = 3
 let recentMessages: { "userId": string, "text": string }[] = []
 const keywords = ["信用卡", "银行", "存款", "体制", "客户", "网点", "存款", "资产", "签证", "理财", "营业", "编制", "事业编", "贷款", "公积金", "对公", "工行", "营销", "工银"]
 const dongdongName = "栋栋🤧"
