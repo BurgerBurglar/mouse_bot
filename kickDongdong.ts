@@ -9,7 +9,6 @@ const dongdongName = "栋栋🤧"
 const realMadridRoomTopic = "皇马upup"
 
 const isKickable = (text: string) => {
-    if (text.length > 15 * 7) return true
     let count = 0
     for (let keyword of keywords) {
         count += (text.match(keyword) || []).length
