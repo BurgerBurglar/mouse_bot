@@ -60,7 +60,7 @@ const getAllMatches = async (sportCode: number): Promise<MatchInfo[] | void> => 
         subclass: 0,
         class1: sportCode,
         page: 1,
-        size: 100,
+        size: 300,
     }
     try {
         const response = (await axios.get<Response>(apiUrl, { params })).data
