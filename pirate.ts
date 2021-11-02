@@ -66,12 +66,14 @@ const getAllMatches = async (sportCode: number): Promise<MatchInfo[] | void> => 
         const response = (await axios.get<Response>(apiUrl, { params })).data
         const matches: MatchInfo[] | undefined = response.data.list
             .filter(dailyResponse => dailyResponse.data)
-            .map(dailyResponse => dailyResponse.data
-                .map(match => ({
-                    homeName: match.homeName,
-                    awayName: match.awayName,
-                    id: match.id
-                } as MatchInfo)))[0]
+            .map(dailyResponse => dailyResponse.data)
+            .filter(dailyData => dailyData.length)
+            .reduce((prev, next) => prev.concat(next))
+            .map(match => ({
+                homeName: match.homeName,
+                awayName: match.awayName,
+                id: match.id
+            } as MatchInfo))
         if (matches && matches.length) {
             return matches
         }
