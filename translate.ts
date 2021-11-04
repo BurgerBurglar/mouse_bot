@@ -24,7 +24,7 @@ const getTranslation = async (msg: Message): Promise<boolean> => {
     const language = removeKeyword(msg, "翻译成") as string
     if (!language) return false
 
-    const endTagPattern = /#(\p{Letter})+/u
+    const endTagPattern = /#(\p{Letter})+/gu
     const matches = quoteText.match(endTagPattern)
     const endTag: string | undefined = matches !== null ? matches[0] : ""
     const toTranslate = quoteText.replace(endTagPattern, "")
