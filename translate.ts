@@ -33,6 +33,8 @@ const getTranslation = async (msg: Message): Promise<boolean> => {
     if (translationResponse instanceof Error) return false
     const { translation, toLanguageName } = translationResponse
     const reply = `${translation + endTag}\n#${toLanguageName === null ? "" : toLanguageName}翻译机器人`
+
+    console.log({ parsedMesssage, quoteText, language, matches, endTag, toTranslate, translationResponse, reply })
     say(msg, reply)
     return true
 }
