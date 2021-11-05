@@ -29,7 +29,7 @@ const parseMessageText = async (msg: Message): Promise<ParsedMessage | null> => 
     const quote = textBreak[0] as string
     const text = textBreak[1] as string
     const quoteFrom = quote.split("：")[0] as string
-    let quoteText = quote.replace(quoteFrom, "").slice(1) as string
+    let quoteText = quote.replace(quoteFrom, "").slice(1, -1) as string
     quoteText = await getTextFromXML(quoteText)
     return { quoteFrom, quoteText, text }
 }
