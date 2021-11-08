@@ -25,8 +25,10 @@ const sendToContact = async (content: string, contactName: string) => {
 
 const sendStatus = async () => {
     const status = await getStatus()
-    if (status && status !== "Case Was Received and A Receipt Notice Was Sent") {
-        sendToContact(status, "花栗鼠")
+    if (!status) {
+        sendToContact("机器人出了点问题哦 #签证机器人", "花栗鼠")
+    } else if (status !== "Case Was Received and A Receipt Notice Was Sent") {
+        sendToContact(`${status} #签证机器人`, "花栗鼠")
     }
 }
 
