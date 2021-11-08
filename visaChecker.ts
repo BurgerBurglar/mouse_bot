@@ -9,7 +9,7 @@ const getStatus = async () => {
         caseStatusSearchBtn: "CHECK STATUS",
     }
     const headers = {
-        Cookie: process.env['RECEIPT_NUMBER'],
+        Cookie: process.env['VISA_COOKIE'],
     }
     const data = (await (axios.post("https://egov.uscis.gov/casestatus/mycasestatus.do", body, { headers }))).data
     const soup = parse(data)
@@ -25,8 +25,10 @@ const sendToContact = async (content: string, contactName: string) => {
 
 const sendStatus = async () => {
     const status = await getStatus()
-    if (status && status !== "Case Was Received and A Receipt Notice Was Sent") {
-        sendToContact(status, "花栗鼠")
+    if (!status) {
+        sendToContact("机器人出了点问题哦 #签证机器人", "花栗鼠")
+    } else if (status !== "Case Was Received and A Receipt Notice Was Sent") {
+        sendToContact(`${status} #签证机器人`, "花栗鼠")
     }
 }
 
