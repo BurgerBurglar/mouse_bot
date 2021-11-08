@@ -10,6 +10,7 @@ import { sendPoem } from "./poem"
 import { addDongdong, kickDongdong } from "./kickDongdong"
 import { getTranslation } from "./translate"
 import { pirate } from "./pirate"
+import { checkStatus } from "./visaChecker"
 
 const doNotReply: { [index: string]: any } = JSON.parse(readFileSync("data/do_not_reply.json", "utf-8"))
 process.env["WECHATY_PUPPET_SERVICE_NO_TLS_INSECURE_SERVER"] = "true"
@@ -67,6 +68,8 @@ bot.on('scan', onScan)
 bot.on('login', onLogin)
 bot.on('logout', onLogout)
 bot.on("message", onMessage)
+
+checkStatus(1000 * 10)
 
 bot
     .start()
