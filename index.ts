@@ -69,7 +69,7 @@ bot.on('login', onLogin)
 bot.on('logout', onLogout)
 bot.on("message", onMessage)
 
-checkStatus(1000 * 10)
+checkStatus(1000 * 60 * 2)
 
 bot
     .start()
