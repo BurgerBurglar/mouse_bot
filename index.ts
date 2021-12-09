@@ -52,8 +52,8 @@ const onMessage = async (msg: Message) => {
     // if (await sendVideo(msg)) return
     if (await sendPoem(msg)) return
     if (await pirate(msg)) return
-    if (await kickDongdong(msg)) return
-    if (await addDongdong(msg)) return
+    // if (await kickDongdong(msg)) return
+    // if (await addDongdong(msg)) return
     if (msg.self()) return
     if (await getKeywordReply(msg)) return
     repeatMe(msg)
