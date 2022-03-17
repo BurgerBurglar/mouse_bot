@@ -133,7 +133,7 @@ def auto_idioms_solitaire(word="", max_count=10, heteronym=True):
     return result_list
 
 
-def search_idiom(word, position=0, count=1, is_detail=False):
+def search_idiom(word, position=0, count=1):
     """
     搜索查找成语。
     :param word: str,关键词
@@ -154,12 +154,7 @@ def search_idiom(word, position=0, count=1, is_detail=False):
     count = count if count > 0 else 1
     count = count if count < length else length
 
-    if not is_detail:
-        return rdf.sample(n=count)["word"].tolist()
-    else:
-        return rdf.sample(n=count)[
-            ["word", "pinyin", "abbreviation", "explanation", "derivation", "example"]
-        ].to_dict("records")
+    return rdf.sample(n=count)["word"].tolist()
 
     # contains(self, pat, case=True, flags=0, na=nan, regex=True)
 
